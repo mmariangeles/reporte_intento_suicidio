@@ -1,0 +1,82 @@
+/* Importa la fuente Manrope desde Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&display=swap');
+
+/* Aplica la fuente Manrope a todo el documento */
+body {
+    font-family: 'Manrope', sans-serif;
+    color: #2C3E4C; /* Color de texto principal */
+    background-color: white; /* Color de fondo principal */
+}
+
+/* Estilos de encabezados */
+h1, h2, h3, h4, h5, h6 {
+    color: #2C3E4C; /* Color de encabezados */
+    font-weight: 700;
+}
+
+/* Estilo para enlaces */
+a {
+    color: #79A762;
+    text-decoration: none;
+}
+a:hover {
+    color: #2C3E4C;
+    text-decoration: underline;
+}
+
+/* Modificación de tablas */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: justify;
+    title-align: center;
+
+    background-color: #F4DFB9; /* Fondo de tabla */ 
+}
+th {
+    text-align: center
+    background-color: #2C3E4C; /* Encabezado de tabla */
+    color: #F4DFB9;
+    padding: 10px;
+}
+td {
+    text-align: justify;
+    padding: 8px;
+    border: 1px solid #2C3E4C;
+}
+
+/* Botones personalizados */
+button, .btn {
+    background-color: #79A762;
+    color: #F4DFB9;
+    border: none;
+    padding: 10px 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+button:hover, .btn:hover {
+    background-color: #2C3E4C;
+    color: #F4DFB9;
+}
+
+/* Bloques de código */
+pre, code {
+    background-color: #2C3E4C;
+    color: #F4DFB9;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+/* Estilos de cuadros (blockquotes) */
+blockquote {
+    border-left: 4px solid #79A762;
+    background-color: #F4DFB9;
+    color: #2C3E4C;
+    padding: 10px 20px;
+    font-style: italic;
+}
+
+/*alineacion justificada*/
+p {
+    text-align: justify;
+}

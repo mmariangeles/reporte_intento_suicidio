@@ -1,0 +1,107 @@
+---
+title: "Vigilancia intento de suicidio"
+author: "Dirección de epidemiología"
+date: today
+format: 
+  html:
+    embed-resources: true
+    published-title: "Fecha:"  # Cambia "Published" por "Fecha"
+    author-title: "Autor:"
+    toc: true                # Habilita la tabla de contenidos
+    toc-title: "Índice de Contenidos"  # Título del índice
+    toc-depth: 3             # Nivel de profundidad del índice (hasta h3)
+    toc-location: left       # Ubicación del índice (izquierda)
+    #include-before-body: logo.html # Incluye el logo antes del contenido
+    code-fold: false
+editor: visual
+execute:
+  warning: false
+  message: false
+footnotes-hover: true # muestra notas al pie
+smooth-scroll: true # suaviza el scroll
+code-copy: true            # Permite copiar el código desde el documento
+include-in-header: HTML/header4.html
+css: CSS/style.css
+resources:
+  - boletin.pdf
+---
+
+# Vigilancia intento de suicidio
+
+Desde la declaración de la pandemia en 2020, la Organización Mundial de la Salud (OMS) advirtió sobre los efectos en la salud mental de las personas, específicamente sobre un aumento de los padecimientos psicosociales en general y de los suicidios en particular. Un informe publicado por la OMS (2022) afirma que cada año hay 703000 defunciones por suicidio, siendo una de las principales causas de muerte. Esta situación representa un problema de salud pública creciente y prioritario tanto a nivel mundial como regional.\
+En Argentina, según las estadísticas vitales de la Dirección Estadísticas e Información en Salud (DEIS), en el año 2022 hubo 3221 defunciones por suicidios (incluyendo secuelas). La Ley Nacional de Prevención del Suicidio Nº 27130 (reglamentada en 2021) declara de interés en todo el país la atención biopsicosocial, la investigación científica y epidemiológica, la capacitación profesional en la detección y atención de las personas en riesgo de suicidio y la asistencia a las familias de víctimas del suicidio. A su vez, promueve la creación de un sistema de registro único con información estadística de los intentos de suicidios, los suicidios consumados, las causas de los decesos, edad, sexo, frecuencia mensual, modalidad utilizada y todo otro dato de interés que tengan como objetivo el mejoramiento de la información estadística. A su vez, reglamenta que *"los casos de suicidio y las causas de los decesos, deben notificarse obligatoriamente a la autoridad sanitaria más próxima".*\
+
+[Temas para exportar en Quarto](https://quarto.org/docs/output-formats/html-themes.html)
+
+[Descargar PDF](Boletín.pdf)
+
+## Incorporación del intento de suicidio al sistema nacional de vigilancia
+
+En Argentina, a través de la resolución ministerial 2827/2022 #LINK PENDIENTE# del Ministerio de Salud de la Nación, se aprobó la actualización del listado de Eventos de Notificación Obligatoria (ENO) y del "Manual de Normas y Procedimientos de Vigilancia y Control de Eventos de Notificación Obligatoria" #LINK PENDIENTE# incluyéndose al intento de suicidio como una ENO.
+
+El objetivo de la vigilancia es caracterizar este evento de salud, estimando su magnitud y procurando identificar las poblaciones o grupos en riesgo para el fortalecimiento de la prevención y posvención (Ministerio de Salud de la Nación, 2022)\
+
+La definición epidemiológica del intento de suicidio, disponible en el Manual de Normas y Procedimientos (Ministerio de Salud de la Nación, 2021) es *"todo comportamiento para el que existe evidencia, implícita o explícita, de intencionalidad de provocarse la muerte".* Es importante destacar que se trata de una definición epidemiológica, a los fines de los objetivos de la estrategia de vigilancia que excluye tanto a la ideación suicida como a la violencia autoinfligida sin intención suicida.
+
+Siguiendo estos lineamientos, el intento de suicidio se clasifica:
+
+-   Sin resultado mortal: todo comportamiento con resultado no mortal para el que existe evidencia, implícita o explícita, de intencionalidad de provocarse la muerte.
+
+-   Con resultado mortal: todo comportamiento con resultado mortal para el que existe evidencia, implícita o explícita, de intencionalidad de provocarse la muerte.
+
+La vigilancia nominal de los intentos de suicidio entró en vigencia el 01 de abril de 2023 (SE 13). La ficha de notificación de este evento se encuentra digitalizada en la plataforma Andes y está también disponible en la página oficial del Ministerio de Salud-*pestaña Epidemiología-fichas de notificación.* #LINK PENDIENTE#
+
+## Metodología
+
+Se trata de un análisis descriptivo con fuente de información secundaria. Se utiliza la exportación nominal del SNVS 2.0, siendo la unidad de análisis la notificación de intento de suicidio realizada oportunamente en el sistema nacional de vigilancia. El periodo analizado es desde la SE 13/2023 (incorporación del evento al sistema de vigilancia) hasta la SE ACTUALIZACION y se utiliza la fecha mínima como unidad de tiempo.
+
+```{r library}
+library(readxl)
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+
+```
+
+```{r base}
+base <- read_excel("base.xlsx")
+```
+
+## Resultados
+
+A continuación se presentan los resultados del análisis realizado. Desde el inicio de la vigilancia del intento de suicidio se han registrado hasta la SE41/2024 un total de 428 notificaciones a nivel provincial. En cuanto a su distribución por sexo, 61% (n=259) corresponde al sexo femenino.
+
+```{r}
+
+
+base <- base %>%
+  mutate(SEPI_CONTINUA = ifelse(ANIO_EPI_SINTOMA == 2023, SEPI_SINTOMA, SEPI_SINTOMA + 52))
+max_count <- max(table(base$SEPI_CONTINUA))
+
+base %>% 
+ggplot(aes(x = SEPI_CONTINUA, fill = SEXO)) +  
+  geom_bar(aes(y = ..count..), color = "black") +  # El color de borde lo puse negro
+  scale_fill_manual(values = c("#8FBC8F", "#2F4F4F")) +
+  scale_x_continuous(breaks = seq(1, 104, by = 1),  # 1-52 para 2023 y 53-104 para 2024
+                     labels = c(as.character(1:52), as.character(1:52))) +
+  labs(x = "Semanas epidemiológicas",
+       y = "Notificaciones",
+       fill = "Sexo")+
+  theme(axis.text.x = element_text(size = 5),
+        axis.text.y = element_text(size = 5),
+        legend.position = "right") +
+  geom_vline(xintercept = 53, linetype = "dashed", color = "grey") +  # Línea vertical en Semana 1 de 2024
+  geom_text(aes(x = 53, y = max_count, label = "2024"), 
+            vjust = -0.5, color = "grey", size = 4)+
+  guides(fill = guide_legend(override.aes = list(label = c("Femenino", "Masculino"))))
+
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).

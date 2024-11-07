@@ -1,0 +1,77 @@
+/* Importa la fuente Manrope desde Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&display=swap');
+
+/* Aplica la fuente Manrope a toda la presentación */
+.reveal {
+    font-family: 'Manrope', sans-serif;
+    color: #2C3E4C; /* Color de texto principal */
+    background-color: #FFFFFF; /* Fondo blanco */
+}
+
+/* Estilos de encabezados */
+.reveal h1, .reveal h2, .reveal h3, .reveal h4, .reveal h5, .reveal h6 {
+    color: #2C3E4C; /* Color de encabezados */
+    font-weight: 700;
+}
+
+/* Estilo para enlaces */
+.reveal a {
+    color: #79A762;
+    text-decoration: none;
+}
+.reveal a:hover {
+    color: #2C3E4C;
+    text-decoration: underline;
+}
+
+/* Estilos de listas */
+.reveal ul, .reveal ol {
+    color: #2C3E4C;
+}
+
+/* Modificación de tablas */
+.reveal table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #FFFFFF; /* Fondo blanco */
+}
+.reveal th {
+    background-color: #2C3E4C; /* Encabezado de tabla */
+    color: #F4DFB9;
+    padding: 10px;
+}
+.reveal td {
+    padding: 8px;
+    border: 1px solid #2C3E4C;
+}
+
+/* Botones personalizados */
+.reveal button, .reveal .btn {
+    background-color: #79A762;
+    color: #FFFFFF;
+    border: none;
+    padding: 10px 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.reveal button:hover, .reveal .btn:hover {
+    background-color: #2C3E4C;
+    color: #FFFFFF;
+}
+
+/* Bloques de código */
+.reveal pre, .reveal code {
+    background-color: #2C3E4C;
+    color: #F4DFB9;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+/* Estilos de cuadros (blockquotes) */
+.reveal blockquote {
+    border-left: 4px solid #79A762;
+    background-color: #F4DFB9;
+    color: #2C3E4C;
+    padding: 10px 20px;
+    font-style: italic;
+}

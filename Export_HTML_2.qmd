@@ -1,0 +1,44 @@
+---
+title: "Export_HTML_2"
+format: 
+  html:
+    embed-resources: true
+    published-title: "Fecha:"  # Cambia "Published" por "Fecha"
+    author-title: "Autor:"
+    toc: true                # Habilita la tabla de contenidos
+code-tools: 
+  source: true
+  toggle: false
+  caption: none
+highlight-style: arrow
+theme: 
+ light: flatly
+ dark: darkly
+---
+
+```{r}
+#| label: código librerias
+#| include: false
+
+
+# library(tidyverse)
+
+1 + 1
+
+```
+
+Data en texto `` `r 1 + 1` `` ejemplo
+
+```{r inicio}
+#| echo: false
+
+2 + 2
+
+```
+
+```{r}
+#| code-fold: true #  bloque de código debe ser plegable
+#| code-summary: "código base"
+
+8*2
+```

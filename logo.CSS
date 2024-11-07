@@ -1,0 +1,7 @@
+.reveal .slide-logo {
+  max-width: 200px !important; /* Ajusta el tama?o m?ximo aqu? */
+  max-height: 200px !important; /* Ajusta el tama?o m?ximo aqu? */
+  width: auto !important;
+  height: auto !important;
+}
+

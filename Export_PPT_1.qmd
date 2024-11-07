@@ -1,0 +1,101 @@
+---
+title: "Quarto Presentations"
+subtitle: "Create beautiful interactive slide decks with Reveal.js"
+format:
+  revealjs: 
+    embed-resources: true
+    slide-number: true
+    pdf-export: true       # Activa la opción de exportar a PDF
+    self-contained: true   # Hace el archivo independiente para facilitar la descarga
+    preview-links: auto
+    #logo: logos/logo_1.png
+    css: CSS/style_ppt.css
+    footer: "Dirección de Epidemiología"
+    incremental: true # esto es para que los bullets aparezcan de a uno
+    title-slide-attributes:
+      data-background-image: fondo.jpg
+      data-background-size: cover
+      data-background-opacity: "0.5"
+    slide-attributes:
+      data-background-image: fondo2.jpg
+      data-background-size: contain
+      data-background-opacity: "0.5"
+    include-in-header: HTML/header3.html
+    
+
+---
+
+## Quarto {background-image="fondo2.jpg" data-background-opacity="0.5"}
+
+Quarto enables you to weave together content and executable code into a finished presentation. To learn more about Quarto presentations see <https://quarto.org/docs/presentations/>.
+
+
+## Bullets
+
+<div style="text-align: right; margin-top: 10px;">
+  <a href="?print-pdf" target="_blank" style="padding: 10px 15px; background-color: #2C3E4C; color: white; text-decoration: none; border-radius: 5px;">Descargar PDF</a>
+</div>
+When you click the **Render** button a document will be generated that includes:
+
+-   Content authored with markdown
+-   Output from executable code
+
+## Code
+
+```{r}
+library(here)
+library(readxl)
+library(readr)
+library(ggplot2)
+library(dplyr)
+library(stringr) # Para trabajar con expresiones regulares
+library(apexcharter)
+
+guardias <- read_delim(here("data", "guardia_adultos_2024_s42.csv"), 
+                       delim = ";", 
+                       locale = locale(encoding = "Latin1"))
+```
+
+```{r}
+# Convertir la columna Edad a numérica extrayendo solo el número
+guardias <- guardias %>%
+  mutate(
+    Edad = as.numeric(str_extract(Edad, "\\d+")) # Extrae solo los dígitos
+  )
+# Agrupación en rangos de edad
+guardias_piramide <- guardias %>%
+  mutate(grupo_edad = cut(Edad, breaks = seq(0, 100, by = 5), right = FALSE)) %>%
+  group_by(grupo_edad, Sexo) %>%
+  summarize(count = n()) %>%
+  ungroup() %>%
+  # Cambiar el signo de las cuentas de hombres para crear la pirámide
+  mutate(count = ifelse(Sexo == "Masculino", -count, count))
+```
+
+::: columns
+::: {.column width="70%"}
+```{r}
+
+#| echo: false
+#| code-line-numbers: "7-15"
+
+# Gráfico de la pirámide poblacional
+ggplot(guardias_piramide, aes(x = grupo_edad, y = count, fill = Sexo)) +
+  geom_bar(stat = "identity", position = "stack") +
+  coord_flip() +
+  scale_y_continuous(labels = abs) +
+  labs(
+    title = "Pirámide Poblacional",
+    x = "Grupo de Edad",
+    y = "Población"
+  ) +
+  theme_minimal() +
+  scale_fill_manual(values = c("Femenino" = "orange", "Masculino" = "darkgreen")) +
+  theme(legend.position = "top")
+```
+:::
+
+::: {.column width="30%"}
+Aca se puede describir el plot
+:::
+:::

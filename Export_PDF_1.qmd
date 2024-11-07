@@ -1,0 +1,62 @@
+---
+title: "Mi Documento PDF"
+author: "Nombre del Autor"
+date: "`r Sys.Date()`"  # Muestra la fecha actual
+format: 
+  pdf:
+    toc: true  # Genera un índice de contenido
+    toc-depth: 2  # Nivel de profundidad del índice
+---
+
+# **LaTeX**
+
+**LaTeX** es un sistema de composición tipográfica ampliamente utilizado para crear documentos de alta calidad, especialmente en contextos académicos, científicos y técnicos. Cuando se exporta un archivo Quarto a PDF, Quarto usa LaTeX como el motor de composición para crear el PDF. Esto permite:
+
+-   Control preciso del diseño de la página, como márgenes, encabezados, pies de página y estilos de títulos.
+
+-   Soporte avanzado para fórmulas matemáticas, gráficos, tablas y referencias.
+
+**TinyTeX** (recomendado): Es una versión ligera y fácil de instalar de LaTeX.
+
+\newpage
+\pagecolor{blue!20}
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+
+1 + 1
+
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
+
+\newpage
+\nopagecolor
+
+# Titulo 2
+
+\newpage
+\nopagecolor
+
+-   **`{=latex}`**: Inicia un bloque donde se interpretan los comandos como LaTeX.
+
+-   **`\newpage`**: Inserta una nueva página en el documento.
+
+-   **`\pagecolor{white}`**: Cambia el color de fondo de la página.
+
+-   **`\nopagecolor`**: Restablece el color de fondo predeterminado.

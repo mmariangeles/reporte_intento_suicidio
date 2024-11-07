@@ -1,0 +1,440 @@
+---
+title: "Tablas y Gráficos ejemplos"
+format: 
+  html:
+    embed-resources: true
+    code-fold: false
+    toc: true # Activa el índice
+    toc-depth: 2 # Profundidad del índice (ajusta según lo que necesites)
+execute:
+  echo: true # Oculta el código
+  warning: false # Oculta advertencias
+  message: false # Oculta mensajes adicionales
+---
+
+## 1 - Importación
+
+**Con paquete here()**
+
+```{r}
+library(here)
+library(readxl)
+library(readr)
+library(ggplot2)
+library(dplyr)
+library(stringr) # Para trabajar con expresiones regulares
+library(highcharter)
+
+
+
+guardias <- read_delim(here("data", "guardia_adultos_2024_s42.csv"), 
+                       delim = ";", 
+                       locale = locale(encoding = "Latin1"))
+
+
+
+
+
+```
+
+**Cambio de estructura de datos a fechas**
+
+```{r}
+
+str(guardias$`Fecha de ingreso`)
+```
+
+```{r}
+
+library(dplyr)
+
+guardias <- guardias %>%
+  mutate(`Fecha de ingreso` = as.Date(`Fecha de ingreso`, format = "%d/%m/%Y"))
+
+
+
+```
+
+**Semanas epidemiológicas**
+
+```{r}
+
+library(lubridate)
+
+
+guardias_epi <- guardias %>% 
+  mutate(semana_epi = epiweek(`Fecha de ingreso`))
+
+```
+
+**Conteo por día**
+
+```{r}
+
+
+resumen_diario <- guardias %>%
+  mutate(fecha = as.Date(`Fecha de ingreso`)) %>%
+  group_by(fecha) %>%
+  summarize(
+    total_internados = sum(`Tipo de egreso` == "Internación", na.rm = TRUE),
+    total_derivados = sum(`Tipo de egreso` == "Derivación", na.rm = TRUE),
+    total_casos = n()  
+  )
+
+```
+
+**fila de totales**
+
+```{r}
+
+# Convertir la columna Fecha a carácter
+resumen_diario <- resumen_diario %>%
+  mutate(fecha = as.character(fecha))
+
+# Calcular la fila de totales y asignar "Total" en la columna Fecha
+totales <- resumen_diario %>%
+  summarise(across(where(is.numeric), sum)) %>%
+  mutate(fecha = "Total")
+
+# Agregar la fila de totales al data frame original
+df_con_totales <- bind_rows(resumen_diario, totales)
+
+
+
+```
+
+## Tablas
+
+```{r}
+
+library(gt)
+
+
+tabla1 <- df_con_totales %>% 
+  gt()
+
+
+tabla1
+```
+
+## Formatos de Tablas
+
+```{r}
+library(gt)
+
+# Crear la tabla inicial usando el dataframe dengue_final
+tabla_formato_1 <- gt(df_con_totales) %>%
+  
+  # Añadir título y subtítulo a la tabla
+  tab_header(
+    title = md("**Resumen diario**"),  # Título en negrita usando Markdown
+    subtitle = md("Total internados por semana")  # Subtítulo con 'confirmados' en cursiva usando Markdown
+  ) %>%
+  
+  # Personalización de las etiquetas de las columnas
+  cols_label(
+    fecha = md("Fecha"),  # nombres de columnas 
+    total_internados = md("Internados"),
+    total_derivados = md("Derivados"),
+    total_casos = md("Total casos")
+  ) %>%
+  
+  # Configurar opciones generales para la tabla
+  tab_options(
+    data_row.padding = px(6),  # Define el relleno (padding, es decir, el espacio interno entre el borde de la celda y el contenido de la celda en las filas de datos de la tabla) 
+    heading.align = "left",  # Alinear los títulos de la tabla a la izquierda
+    column_labels.background.color = "#1E90FF",  # Establecer el color de fondo para las etiquetas de las columnas en azul 
+    heading.title.font.size = px(26),  # Tamaño de la fuente del título en 26 píxeles
+    heading.subtitle.font.size = px(14),  # Tamaño de la fuente del subtítulo en 14 píxeles
+    table_body.hlines.width = px(1)  # Define el grosor de las líneas horizontales en el cuerpo de la tabla a 1 píxel
+  ) %>%
+  
+  # Alinear el contenido de las columnas de manera específica
+  cols_align(
+    align = "left", columns = c(1)  # Alinear las columnas 1 y 2 (por ejemplo, 'Región Sanitaria' y 'Departamento') a la izquierda
+  ) %>%
+  cols_align(
+    align = "center", columns = c(2,3,4)  # Alinear las columnas 1, 4 y 5 (por ejemplo, 'Localidad', 'Confirmados última semana', 'Acumulados') al centro
+  ) %>%
+  
+  # Aplicar estilo al título de la tabla
+  tab_style(
+    style = cell_text(
+      color = "#1E90FF",  # Establece el color del texto en azul (dodgerblue)
+      weight = "bold",  # Aplica un peso de negrita al texto
+      font = ("helvetica")  # Cambia la fuente a Helvetica usando Google Fonts
+    ),
+    location = cells_title(groups = "title")  # Aplica el estilo solo al título de la tabla
+  ) %>%
+  
+  # Aplicar estilo a las filas alternas (darle un color de fondo gris claro a las filas impares)
+  tab_style(
+    style = cell_fill(color = "grey90"),  # Rellenar con color de fondo gris claro (grey90)
+    locations = cells_body(rows = seq(1, nrow(resumen_diario), 2))  # Aplicar solo a las filas impares (usando una secuencia de filas impares)
+  ) %>% 
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_body(rows = nrow(df_con_totales))
+  ) %>% 
+  
+  # Aplicar negrita a los nombres de las columnas
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_column_labels()
+  ) %>% 
+  
+  tab_source_note(
+    source_note = md("Fuente de datos: Sistema de Información Sanitaria Argentino **(SISA)**. Actualizado el 2024-10-19.")
+  )
+
+tabla_formato_1
+ 
+```
+
+```{r}
+
+
+# Crear la tabla con gt
+df_con_totales %>%
+  gt() %>%
+  
+  # Agregar el título y subtítulo a la tabla
+  tab_header(
+    title = md("**Resumen Diario**"),
+    subtitle = md("Casos de internación y derivados en semana 42")
+  ) %>%
+  
+  # Alinear el encabezado de la tabla a la izquierda
+  opt_align_table_header(align = "left") %>%
+  
+  # Definir el ancho de las columnas
+  cols_width(
+    fecha ~ px(200),
+    total_internados ~ px(200),
+    total_derivados ~ px(200),
+    total_casos ~ px(150)
+  ) %>%
+  
+  # Agregar una nota de fuente de datos
+  tab_source_note(
+    source_note = md("Fuente de datos: Sistema de Información Sanitaria Argentino **(SISA)**.")
+  ) %>%
+  
+  # Agregar notas al pie en las columnas específicas
+  tab_footnote(
+    footnote = "Acumulados semanales",
+    locations = cells_column_labels(columns = total_derivados)
+  ) %>%
+  
+  # tab_footnote(
+  #   footnote = "año 2024",
+  #   locations = cells_column_labels(columns = total_casos)
+  # ) %>%
+  # 
+  # tab_footnote(
+  #   footnote = "ver registro",
+  #   locations = list(
+  #     cells_column_labels(columns = total_internados),
+  #     cells_body(columns = Fecha)
+  #   )
+  # ) %>%
+  
+  # Aplicar un gradiente de color a la columna 'Total internados'
+  # Aplicar gradiente de color a la columna `Total internados`
+  data_color(
+    columns = c(total_internados, total_derivados),
+    colors = scales::col_numeric(
+      palette = c("#47e886", "#f7616c"),
+      domain = c(0, 70)
+    )
+  ) %>%
+  
+  # Aplicar gradiente de color a la columna `Total derivados`
+  data_color(
+    columns = total_casos,
+    colors = scales::col_numeric(
+      palette = c("#47e886", "#f7616c"),
+      domain = c(100, 1200)
+    )
+  ) %>%
+  
+  # Establecer una fuente personalizada
+  opt_table_font(
+    font = ("Arial"),
+    weight = 600
+  ) %>%
+  
+  # Opciones de estilo
+  tab_options(
+    table.border.top.style = "none",
+    table.border.bottom.style = "none",
+    table_body.hlines.style = "none"
+  )
+
+
+```
+
+## Gráfico 1
+
+```{r}
+
+ library(ggplot2)
+ library(dplyr)
+ library(tidyr)
+
+
+# formato largo
+
+resumen_diario_2 <- resumen_diario %>% 
+  mutate(fecha = as.Date(fecha))
+
+formato_largo <- resumen_diario_2 %>%
+  select(fecha, total_internados, total_derivados) %>%
+  pivot_longer(cols = c("total_internados", "total_derivados"), names_to = "Tipo", values_to = "totales_egresos")
+
+
+ggplot(formato_largo, aes(x = as.factor(format(fecha, "%m-%d")), y = totales_egresos, fill = Tipo)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    title = "Total de Pacientes Internados y Derivados por Fecha",
+    x = "Fecha",
+    y = "Totales de egresos"
+  ) +
+  scale_fill_manual(values = c("blue", "orange")) +
+  theme_minimal() +
+  theme() 
+
+```
+
+## Gráfico 2
+
+```{r}
+
+# media móvil
+data <- resumen_diario_2 %>%
+  mutate(total_internados_media_movil = (total_internados + lag(total_internados)) / 2)
+
+
+ggplot(data, aes(x = fecha)) +
+  geom_line(aes(y = total_internados, color = "Internados"), size = 1) +
+  geom_line(aes(y = total_derivados, color = "Derivados"), size = 1) +
+  geom_line(aes(y = total_internados_media_movil, color = "Media móvil (Internados)"), linetype = "dotted", size = 1) +
+  scale_color_manual(values = c("blue", "orange", "orange")) +
+  labs(
+    title = "Total de Pacientes por Fecha",
+    x = "Fecha",
+    y = "Cantidad de Pacientes",
+    color = "Leyenda"
+  ) +
+  theme_minimal() +
+  theme()  # Rotación de las etiquetas del eje x
+
+
+
+```
+
+## Piramide
+
+```{r}
+
+# Convertir la columna Edad a numérica extrayendo solo el número
+guardias <- guardias %>%
+  mutate(
+    Edad = as.numeric(str_extract(Edad, "\\d+")) # Extrae solo los dígitos
+  )
+# Agrupación en rangos de edad
+guardias_piramide<- guardias %>%
+  mutate(grupo_edad = cut(Edad, breaks = seq(0, 100, by = 5), right = FALSE)) %>%
+  group_by(grupo_edad, Sexo) %>%
+  summarize(count = n()) %>%
+  ungroup() %>%
+  # Cambiar el signo de las cuentas de hombres para crear la pirámide
+  mutate(count = ifelse(Sexo == "Masculino", -count, count))
+
+# Gráfico de la pirámide poblacional
+ggplot(guardias_piramide, aes(x = grupo_edad, y = count, fill = Sexo)) +
+  geom_bar(stat = "identity", position = "stack") +
+  coord_flip() +
+  scale_y_continuous(labels = abs) +
+  labs(
+    title = "Pirámide Poblacional",
+    x = "Grupo de Edad",
+    y = "Población"
+  ) +
+  theme_minimal() +
+  scale_fill_manual(values = c("Femenino" = "orange", "Masculino" = "darkgreen")) +
+  theme(legend.position = "top")
+
+```
+
+## Graficos interactivos: Highcharter
+
+```{r}
+  # Preprocesar los datos, incluyendo la conversión de fecha
+  data_summary <- guardias %>%
+    mutate(fecha = as.Date(`Fecha de ingreso`, format = "%d/%m/%Y")) %>% # Convertir a formato de fecha
+    group_by(fecha, `Tipo de ingreso`) %>%
+    summarize(count = n()) %>%
+    ungroup()
+  
+  names(data_summary)
+  
+
+  data_summary <- data_summary %>%
+    mutate(fecha = as.Date(fecha))%>%
+    complete(fecha, `Tipo de ingreso`, fill = list(count = 0))
+  
+  
+  # Supongamos que 'data_summary' ya está cargado y estructurado
+  data_wide <- data_summary %>%
+    pivot_wider(names_from = `Tipo de ingreso`, values_from = count)
+  
+  # Crear gráfico de barras apiladas con highcharter
+  highchart() %>%
+    hc_chart(type = "column") %>%
+    hc_title(text = "Gráfico de Barras Apiladas por Fecha y Tipo de Ingreso") %>%
+    hc_xAxis(categories = data_wide$fecha, title = list(text = "Fecha")) %>%
+    hc_yAxis(title = list(text = "Cantidad")) %>%
+    hc_plotOptions(column = list(stacking = "normal")) %>%
+    hc_add_series(name = "Ambulancia", data = data_wide$Ambulancia) %>%
+    hc_add_series(name = "Ambulatorio", data = data_wide$Ambulatorio) %>%
+    hc_add_series(name = "Derivado", data = data_wide$Derivado) %>%
+    hc_add_series(name = "NA", data = data_wide$`NA`) # Aquí está el paréntesis de cierre corregido
+
+
+```
+
+Por semana EPI
+
+```{r}
+
+# Crear el gráfico de líneas
+highchart() %>%
+  hc_chart(type = "line") %>%
+  hc_title(text = "Ingresos por Semana Epidemiológica") %>%
+  hc_xAxis(categories = data_wide$fecha, title = list(text = "Semana Epidemiológica")) %>%
+  hc_yAxis(title = list(text = "Cantidad de Ingresos")) %>%
+  hc_add_series(name = "Ambulancia", data = data_wide$Ambulancia) %>%
+  hc_add_series(name = "Derivado", data = data_wide$Derivado) %>%
+  hc_add_series(name = "NA", data = data_wide$`NA`) %>%
+  hc_add_series(name = "Ambulatorio", data = data_wide$Ambulatorio) %>%
+  hc_tooltip(shared = TRUE, crosshairs = TRUE) %>%
+  hc_legend(enabled = TRUE) %>%
+  hc_plotOptions(line = list(marker = list(enabled = TRUE))) %>% 
+ hc_exporting(
+    enabled = TRUE, # Habilitar el botón de exportación
+    buttons = list(
+      contextButton = list(
+        menuItems = list(
+          "downloadPNG",    # Descargar imagen PNG
+          "downloadJPEG",   # Descargar imagen JPEG
+          "downloadPDF",    # Descargar imagen PDF
+          "downloadSVG",    # Descargar imagen SVG
+          "separator",      # Separador en el menú
+          "downloadCSV",    # Descargar datos en CSV
+          "downloadXLS"     # Descargar datos en XLS
+        )
+      )
+    )
+  )
+```
