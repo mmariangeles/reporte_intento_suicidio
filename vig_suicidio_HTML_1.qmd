@@ -324,7 +324,7 @@ En consonancia, el lugar de ocurrencia que prevalece es la `r ocurrencia_maximo`
 
 ```{r tabla ocurrencia con GT}
 
-titulo_dinamico5 <- glue("Notificaciones de IS según lugar de ocurrencia utilizado. Periodo SE 13/2023 a SE {SE_MAX}/ {anio_maximo}. Provincia del Neuquén. N =  {cant_notif}")
+titulo_dinamico5 <- glue("Notificaciones de IS según lugar de ocurrencia. Periodo SE 13/2023 a SE {SE_MAX}/ {anio_maximo}. Provincia del Neuquén. N =  {cant_notif}")
 
 ocurrencia_gt <- TABLA_OCURRENCIA %>%
   gt() %>%
@@ -408,10 +408,10 @@ titulo_dinamico7 <- glue("Notificaciones de IS según comorbilidades. Periodo SE
 
 
 highchart() %>%
-  hc_chart(type = "bar") %>%  # Cambiar a "bar" para barras horizontales
+  hc_chart(type = "bar") %>%
   hc_title(
     text = titulo_dinamico7,
-    align = "center",
+    align = "left",
     style = list(
       fontFamily = "Manrope",
       fontSize = "20px",
@@ -429,8 +429,10 @@ highchart() %>%
     )
   ) %>%
   hc_xAxis(
-    categories = comorbilidades$COMORBILIDAD,  
-    title = list(text = "Comorbilidades")
+    categories = comorbilidades$COMORBILIDAD,
+    title = list(text = "Comorbilidades"),
+    labels = list(
+      style = list(fontSize = "10px"))
   ) %>%
   hc_yAxis(
     title = list(text = "Notificaciones"),
@@ -438,24 +440,61 @@ highchart() %>%
   ) %>%
   hc_series(
     list(
-      data = comorbilidades$n))
-
-
-
-
-
-
-
-
+      data = comorbilidades$n,
+      color = "#8FBC8F",
+      showInLegend = FALSE))
 
 
 ```
 
 Por último, la siguiente tabla muestra las notificaciones en el sistema de vigilancia nacional según la región.
 
-**ACÁ VA LA TABLA DE REGIONES**
+```{r tabla notificaciones por regiones}
 
-# prueba
+titulo_dinamico8 <- glue("Notificaciones de IS según region notificadora. Periodo SE 13/2023 a SE {SE_MAX}/ {anio_maximo}. Provincia del Neuquén. N =  {cant_notif}")
+
+regiones_gt <- tabla_regiones %>%
+  gt() %>%
+  fmt_number(
+    columns = vars(Región),
+    decimals = 0
+  ) %>%
+  fmt_percent(
+    columns = vars(porc),
+    decimals = 1
+  ) %>%
+  
+# Renombrar las columnas para reflejar el formato solicitado
+  cols_label(
+    Región = "Región",
+    n = "Total general",
+    porc = "%") %>%
+  # Agregar un encabezado a la tabla
+  tab_header(
+    title = titulo_dinamico8)%>% 
+  tab_style(
+    style = cell_text(
+      font = "Manrope",   
+      weight = "bold",     
+      align = "left"),
+    locations = cells_title(groups = "title")) %>% 
+  # Agregar la fuente de datos al pie de tabla
+  tab_source_note(
+    source_note = "Elaboración propia en base a datos extraídos de SNVS 2.0") %>%
+  tab_style(
+    style = cell_text(
+      font = "Manrope",
+      size = "12px",
+      align = "center"),
+    locations = cells_source_notes())
+regiones_gt
+
+
+```
+
+pendientes: sacar la columna de establecimiento
+
+acomodar el orden de las columnas de las tablas en general
 
 # Comentarios finales
 

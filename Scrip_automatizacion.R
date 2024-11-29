@@ -89,7 +89,7 @@ max_edad_defunc <- max(defunciones$EDAD_ACTUAL)
 #tabla frencuencia por SE----
 tabla_conteo <- base %>% count(ANIO_EPI_SINTOMA, SEPI_SINTOMA, SEXO)
 
-#tabla para gráfico doble eje----
+#tabla para gráfico doble eje: notificaciones y tasas de notificacion----
 poblacion <- read_csv2("Poblacion.csv")
 poblacion <- as.data.frame(poblacion)
 
@@ -290,19 +290,19 @@ base <- base %>%
   mutate(COMORBILIDAD=case_when(
     COMORBILIDAD=="Sin información"~"Sin información",
     COMORBILIDAD=="Sin comorbilidades"~"Sin comorbilidades",
-    COMORBILIDAD=="Antecedente de consumo problemático de alcohol"~"Consumo problemático de sustancia psicoactiva",
-    COMORBILIDAD=="Antecedente de consumo problemático de cocaína"~"Consumo problemático de sustancia psicoactiva",
-    COMORBILIDAD=="Antecedente de consumo problemático de marihuana"~"Consumo problemático de sustancia psicoactiva",
-    COMORBILIDAD=="Otro antecedente de consumo problemático previo"~"Consumo problemático de sustancia psicoactiva",
-    COMORBILIDAD=="Antecedente de consumo problemático de drogas de diseño"~"Consumo problemático de sustancia psicoactiva",
+    COMORBILIDAD=="Antecedente de consumo problemático de alcohol"~"Consumo prob. de sustancia psicoactiva",
+    COMORBILIDAD=="Antecedente de consumo problemático de cocaína"~"Consumo prob. de sustancia psicoactiva",
+    COMORBILIDAD=="Antecedente de consumo problemático de marihuana"~"Consumo prob. de sustancia psicoactiva",
+    COMORBILIDAD=="Otro antecedente de consumo problemático previo"~"Consumo prob. de sustancia psicoactiva",
+    COMORBILIDAD=="Antecedente de consumo problemático de drogas de diseño"~"Consumo prob. de sustancia psicoactiva",
     COMORBILIDAD=="Diagnóstico de salud mental"~"Diagnóstico de salud mental",
-    COMORBILIDAD=="Enfermedad crónica"~"Enfermedad crónica",
-    COMORBILIDAD=="Con antecedentes de intentos previos de suicidio"~"Antecedentes de intentos previos de suicidio",
-    COMORBILIDAD=="Antec. consumo problemático de psicofármacos no recetados"~"Consumo problemático de psicofármacos no recetados",
+    COMORBILIDAD=="Enfermedad crónica"~"Enf. crónica",
+    COMORBILIDAD=="Con antecedentes de intentos previos de suicidio"~"IS previos",
+    COMORBILIDAD=="Antec. consumo problemático de psicofármacos no recetados"~"Consumo prob. de psicofármacos no recetados",
     COMORBILIDAD=="Condición discapacitante"~"Condición discapacitante",
-    COMORBILIDAD=="Enfermedad grave o terminal de referente vincular"~"Enfermedad grave o terminal de referente vincular",
+    COMORBILIDAD=="Enfermedad grave o terminal de referente vincular"~"Enf.grave/terminal de referente vincular",
     COMORBILIDAD=="Otra situación clínica relevante"~"Otra situación clínica relevante",
-    COMORBILIDAD=="Situaciones clínicas relevantes: enfermedad crónica"~"Enfermedad crónica",
+    COMORBILIDAD=="Situaciones clínicas relevantes: enfermedad crónica"~"Enf. crónica",
     TRUE ~ COMORBILIDAD)
   )
 
@@ -329,5 +329,37 @@ porcentaje_consumo <- comorbilidades %>%
 n_consumo <- comorbilidades %>%
   filter(COMORBILIDAD == "Consumo problemático de sustancia psicoactiva") %>%
   pull(n)
+
+
+
+#notificacion por regiones----
+regiones <- read_csv2("regiones.csv")
+regiones <- as.data.frame(regiones)
+
+tabla_regiones<- base%>% count(ESTABLECIMIENTO_CARGA) %>% 
+  mutate(porc= (n / sum(n))) %>% 
+  arrange(desc(n))
+
+#join efectores y regiones
+
+tabla_regiones <- left_join(tabla_regiones, regiones, by = "ESTABLECIMIENTO_CARGA")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
