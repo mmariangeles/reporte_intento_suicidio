@@ -455,7 +455,7 @@ Por último, la siguiente tabla muestra las notificaciones en el sistema de vigi
 
 **ACÁ VA LA TABLA DE REGIONES**
 
-# 
+# prueba
 
 # Comentarios finales
 
@@ -473,7 +473,7 @@ Tanto la OMS como la OPS caracterizan como prevenibles a los suicidios y a los i
 
 <p id="footnote2">
 
-2.  Disponible en <https://salud.neuquen.gob.ar/wp-content/uploads/2024/09/Actualizacion-agosto-2022-Manual-de-normas-y-procedimientos-de-vigilancia-y-control-de-ENO.pdf> <ahref="#note2"> Volver al texto</a>
+2.  Disponible en <https://salud.neuquen.gob.ar/wp-content/uploads/2024/09/Actualizacion-agosto-2022-Manual-de-normas-y-procedimientos-de-vigilancia-y-control-de-ENO.pdf> \<ahref="#note2"\> Volver al texto</a>
 
     </p>
 
@@ -481,7 +481,7 @@ Tanto la OMS como la OPS caracterizan como prevenibles a los suicidios y a los i
 
 <p id="footnote3">
 
-3.  Disponible en <https://salud.neuquen.gob.ar/wp-content/uploads/2024/08/Ficha-Intento-de-Suicidio.pdf> <ahref="#note3"> Volver al texto</a>
+3.  Disponible en <https://salud.neuquen.gob.ar/wp-content/uploads/2024/08/Ficha-Intento-de-Suicidio.pdf> \<ahref="#note3"\> Volver al texto</a>
 
     </p>
 
