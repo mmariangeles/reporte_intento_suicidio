@@ -28,19 +28,14 @@ a:hover {
 table {
     width: 100%;
     border-collapse: collapse;
-    text-align: justify;
-    title-align: center;
-
-    background-color: #F4DFB9; /* Fondo de tabla */ 
+    background-color: #white; /* Fondo de tabla */
 }
 th {
-    text-align: center
     background-color: #2C3E4C; /* Encabezado de tabla */
     color: #F4DFB9;
     padding: 10px;
 }
 td {
-    text-align: justify;
     padding: 8px;
     border: 1px solid #2C3E4C;
 }
