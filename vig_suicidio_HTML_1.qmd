@@ -29,14 +29,10 @@ smooth-scroll: true # suaviza el scroll
 code-copy: true            # Permite copiar el código desde el documento
 include-in-header: HTML/header4.html
 css: CSS/style.css
-resources:
-  - boletin.pdf
 ---
 
 Desde la declaración de la pandemia en 2020, la Organización Mundial de la Salud (OMS) advirtió sobre los efectos en la salud mental de las personas, específicamente sobre un aumento de los padecimientos psicosociales en general y de los suicidios en particular. Un informe publicado por la OMS (2022) afirma que cada año hay 703000 defunciones por suicidio, siendo una de las principales causas de muerte. Esta situación representa un problema de salud pública creciente y prioritario tanto a nivel mundial como regional.\
 En Argentina, según las estadísticas vitales de la Dirección Estadísticas e Información en Salud (DEIS), en el año 2022 hubo 3221 defunciones por suicidios (incluyendo secuelas). La Ley Nacional de Prevención del Suicidio Nº 27130 (reglamentada en 2021) declara de interés en todo el país la atención biopsicosocial, la investigación científica y epidemiológica, la capacitación profesional en la detección y atención de las personas en riesgo de suicidio y la asistencia a las familias de víctimas del suicidio. A su vez, promueve la creación de un sistema de registro único con información estadística de los intentos de suicidios, los suicidios consumados, las causas de los decesos, edad, sexo, frecuencia mensual, modalidad utilizada y todo otro dato de interés que tengan como objetivo el mejoramiento de la información estadística. A su vez, reglamenta que *"los casos de suicidio y las causas de los decesos, deben notificarse obligatoriamente a la autoridad sanitaria más próxima".*\
-
-[Descargar PDF](Boletín.pdf) **CHECK esto**
 
 ## Incorporación del intento de suicidio al sistema nacional de vigilancia
 
