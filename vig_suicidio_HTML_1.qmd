@@ -4,7 +4,9 @@ source("Scrip_automatizacion.R")
 
 ---
 title: "Vigilancia epidemiológica de intento de suicidio"
-author: "Dirección de Epidemiología"
+author:   
+ - "Dirección de Epidemiología"
+ - "Psic Mariangeles Martinez"
 date: "`r format(fecha_max, '%d/%m/%Y')`" 
 format: 
   html:
@@ -246,7 +248,7 @@ highchart() %>%
     type = "scatter") %>% 
   
   hc_tooltip(
-    shared = TRUE,  # Muestra información de todas las series al pasar el mouse
+    shared = TRUE,  
     formatter = JS("function() {
       if (this.series.name.includes('Tasa')) {
         return '<b>' + this.series.name + '</b><br>' +
@@ -274,6 +276,17 @@ La sobreingesta medicamentosa es el mecanismo de acción que acumula el mayor po
 ```{r tabla mecanismos}
 
 titulo_dinamico4 <- glue("Notificaciones de IS según mecanismo utilizado. Periodo SE 13/2023 a SE {SE_MAX}/ {anio_maximo}. Provincia del Neuquén. N =  {cant_notif}")
+
+#orden de las columnas
+tabla_mecanismo <- tabla_mecanismo %>%
+  select(
+    MECANISMO,
+    total_F,
+    porcentaje_F,
+    total_M,
+    porcentaje_M,
+    total_general,
+    porcentaje_total_general)
 
 
 # Crear la tabla con gt y formatearla
@@ -306,7 +319,6 @@ mecanismo_gt <- tabla_mecanismo %>%
       weight = "bold",     
       align = "left"),
     locations = cells_title(groups = "title")) %>% 
-  # Agregar la fuente de datos al pie de tabla
   tab_source_note(
     source_note = "Elaboración propia en base a datos extraídos de SNVS 2.0") %>%
   tab_style(
@@ -442,7 +454,10 @@ highchart() %>%
     list(
       data = comorbilidades$n,
       color = "#8FBC8F",
-      showInLegend = FALSE))
+      showInLegend = FALSE)) %>% 
+  hc_tooltip(
+    pointFormat = "Notificaciones: <b>{point.y}</b>")
+
 
 
 ```
@@ -451,25 +466,22 @@ Por último, la siguiente tabla muestra las notificaciones en el sistema de vigi
 
 ```{r tabla notificaciones por regiones}
 
-titulo_dinamico8 <- glue("Notificaciones de IS según region notificadora. Periodo SE 13/2023 a SE {SE_MAX}/ {anio_maximo}. Provincia del Neuquén. N =  {cant_notif}")
+titulo_dinamico8 <- glue("Notificaciones de IS según región notificadora. Periodo SE 13/2023 a SE {SE_MAX}/ {anio_maximo}. Provincia del Neuquén. N =  {cant_notif}")
 
 regiones_gt <- tabla_regiones %>%
   gt() %>%
   fmt_number(
-    columns = vars(Región),
+    columns = vars(REGION),
     decimals = 0
   ) %>%
   fmt_percent(
     columns = vars(porc),
-    decimals = 1
-  ) %>%
+    decimals = 0) %>%
   
-# Renombrar las columnas para reflejar el formato solicitado
   cols_label(
-    Región = "Región",
-    n = "Total general",
+    REGION = "Región",
+    N = "Total general",
     porc = "%") %>%
-  # Agregar un encabezado a la tabla
   tab_header(
     title = titulo_dinamico8)%>% 
   tab_style(
@@ -478,8 +490,7 @@ regiones_gt <- tabla_regiones %>%
       weight = "bold",     
       align = "left"),
     locations = cells_title(groups = "title")) %>% 
-  # Agregar la fuente de datos al pie de tabla
-  tab_source_note(
+    tab_source_note(
     source_note = "Elaboración propia en base a datos extraídos de SNVS 2.0") %>%
   tab_style(
     style = cell_text(
@@ -489,12 +500,7 @@ regiones_gt <- tabla_regiones %>%
     locations = cells_source_notes())
 regiones_gt
 
-
 ```
-
-pendientes: sacar la columna de establecimiento
-
-acomodar el orden de las columnas de las tablas en general
 
 # Comentarios finales
 
@@ -502,26 +508,29 @@ Tanto la OMS como la OPS caracterizan como prevenibles a los suicidios y a los i
 
 # Bibliografía
 
-<p id="footnote1">
+-   Ley Nacional 26657 Derecho a la Protección de la Salud Mental (2010). (Disponible en [hps://servicios.infoleg.gob.ar/infolegInternet/anexos/175000ɮ179999/175977/norm a.htm](hps://servicios.infoleg.gob.ar/infolegInternet/anexos/175000ɮ179999/175977/norm a.htm))
 
-1.  Disponible en <https://www.boletinoficial.gob.ar/detalleAviso/primera/275961/20221116> <a href="#note1"> Volver al texto</a>
+-   Ley Nacional 27130 - Prevención del Suicidio (2015). (Disponible en <https://www.argentina.gob.ar/normativa/nacional/ley-27130-245618/texto>)
 
-    </p>
+-   Ministerio de Salud de la Nación (2022). Manual de normas y procedimientos de vigilancia y control de eventos de notificación obligatoria. (Disponible en [hps://salud.neuquen.gob.ar/wp-content/uploads/2024/09/Actualizacion-agosto-2 022-Manual-de-normas-y-procedimientos-de-vigilancia-y-control-de-ENO.pdf](hps://salud.neuquen.gob.ar/wp-content/uploads/2024/09/Actualizacion-agosto-2 022-Manual-de-normas-y-procedimientos-de-vigilancia-y-control-de-ENO.pdf))
 
-    </div>
+-   Ministerio de Salud de la Nación (2023). Instructivo para la notificación de Intentos de Suicidio al Sistema Nacional de Vigilancia de la Salud SNVS2.0.
 
-<p id="footnote2">
+-   Ministerio de Salud de la Nación (2023). Dirección de estadísticas e información en salud. Estadísticas Vitales. Información Básica Argentina - Año 2022. (Disponible en <https://www.argentina.gob.ar/salud/deis>)
 
-2.  Disponible en <https://salud.neuquen.gob.ar/wp-content/uploads/2024/09/Actualizacion-agosto-2022-Manual-de-normas-y-procedimientos-de-vigilancia-y-control-de-ENO.pdf> \<ahref="#note2"\> Volver al texto</a>
+-   Ministerio de Salud de la Provincia del Neuquén (2024). Vigilancia- Intento de suicidio. (Disponible en [hps://salud.neuquen.gob.ar/wp-content/uploads/2024/09/vigilancia-intento-de-s uicidio-Final.pdf](hps://salud.neuquen.gob.ar/wp-content/uploads/2024/09/vigilancia-intento-de-s uicidio-Final.pdf))
 
-    </p>
+-   Ministerio de Salud de la Provincia del Neuquén (2024). Boletín epidemiológico mensual de septiembre. Evento priorizado: “Intento de suicidio”. (Disponible en [hps://salud.neuquen.gob.ar/wp-content/uploads/2024/08/MSaludNQNɮBEM.-ABRI L-2024.pdf](hps://salud.neuquen.gob.ar/wp-content/uploads/2024/08/MSaludNQNɮBEM.-ABRI L-2024.pdf))
 
-    </div>
+-   OMS (2022) Informe mundial sobre salud mental: Transformar la salud mental para todos. (Disponible en [hps://www.who.int/es/publications/i/item/9789240050860](hps://www.who.int/es/publications/i/item/9789240050860))\
+    \
+    \
+    \
+    \
+    \
+    \
 
-<p id="footnote3">
+    \
 
-3.  Disponible en <https://salud.neuquen.gob.ar/wp-content/uploads/2024/08/Ficha-Intento-de-Suicidio.pdf> \<ahref="#note3"\> Volver al texto</a>
 
-    </p>
-
-    </div>
+    \

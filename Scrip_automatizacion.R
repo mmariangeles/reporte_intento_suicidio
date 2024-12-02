@@ -13,10 +13,14 @@ library(glue)
 
 #Carga de dataset----
 base <- read_excel("base.xlsx")
+
 base <- as.data.frame(base)
 #Objeto fecha máx----
+
+
 class(base$FECHA_APERTURA)
 base$FECHA_APERTURA <- as.Date(base$FECHA_APERTURA, format = "%dd/%mm/%YY")
+table(base$FECHA_APERTURA)
 
 fecha_max <- max(base$FECHA_APERTURA, na.rm = TRUE) 
 View(fecha_max)
@@ -336,27 +340,35 @@ n_consumo <- comorbilidades %>%
 regiones <- read_csv2("regiones.csv")
 regiones <- as.data.frame(regiones)
 
-tabla_regiones<- base%>% count(ESTABLECIMIENTO_CARGA) %>% 
-  mutate(porc= (n / sum(n))) %>% 
-  arrange(desc(n))
-
-#join efectores y regiones
-
-tabla_regiones <- left_join(tabla_regiones, regiones, by = "ESTABLECIMIENTO_CARGA")
+#tabla
+tabla_establecimientos <- base %>%
+  group_by(ESTABLECIMIENTO_CARGA) %>%
+  summarise(N = n()) %>%
+  ungroup() 
 
 
+#n tabla
+sum(tabla_establecimientos$N) #hasta acá esta ok el N
 
+#join
+tabla_regiones <- tabla_establecimientos %>% 
 
+  left_join(regiones, by = "ESTABLECIMIENTO_CARGA")
 
+#n tabla regiones
 
+sum(tabla_regiones$N) #hasta acá esta ok el N
 
+#agrupo regiones
 
-
-
-
-
-
-
+tabla_regiones <- tabla_regiones %>%
+  group_by(REGION) %>%  
+  summarise(
+    N = sum(N, na.rm = TRUE),   
+    porc = N / sum(tabla_regiones$N)   
+  ) %>%
+  ungroup() %>%
+  arrange(desc(N))   
 
 
 
