@@ -1,5 +1,5 @@
 ```{r}
-source("Scrip_automatizacion.R")
+source("0.R")
 ```
 
 ---
@@ -45,7 +45,7 @@ La definición epidemiológica del IS disponible en el Manual de Normas y Proced
 Siguiendo estos lineamientos, se clasifica en:
 
 |  |  |
-|------------------------------------|------------------------------------|
+|----|----|
 | **Sin resultado mortal** | **Con resultado mortal** |
 | todo comportamiento con resultado no mortal para el que existe evidencia, implícita o explícita, de intencionalidad de provocarse la muerte | todo comportamiento con resultado mortal para el que existe evidencia, implícita o explícita, de intencionalidad de provocarse la muerte |
 
@@ -53,106 +53,28 @@ La vigilancia nominal de los IS entró en vigencia el 01 de abril de 2023 (SE 13
 
 ## Metodología
 
-Se trata de un análisis descriptivo, para el que se utiliza la exportación nominal del SNVS 2.0, siendo la unidad de análisis la notificación de IS. El periodo analizado es desde la SE 13/2023 (incorporación del evento al sistema de vigilancia) hasta la SE `r SE_MAX` y se utiliza la fecha mínima como unidad de tiempo.
+Se trata de un análisis descriptivo, para el que se utiliza la exportación nominal del SNVS 2.0. La unidad de análisis es la notificación de IS.
+
+El dataset está formado por las notificaciones correspondientes a personas con domicilio y que hayan recibido atención en efectores de la provincia del Neuquén. No se tienen en consideración aquellos eventos invalidados por epidemiología[^vig_suicidio_html_1-1].
+
+[^vig_suicidio_html_1-1]: Esta clasificación manual corresponde principalmente a eventos identificados durante el reparo de datos, que se duplicaron por interoperabilidad de ANDES y SNVS.
+
+Para la dimensión temporal fueron creadas las variables semana mínima y año mínimo, a partir de las semanas epidemiológicas y año provistos en el dataset.
+
+El periodo analizado es desde la SE 13/2023 (incorporación del evento al sistema de vigilancia) hasta la SE `r SE_MAX` / `r ANIO_MAX`.
 
 ## Resultados
 
-Desde el inicio de la vigilancia de IS se han registrado hasta la `r SE_MAX` un total de `r cant_notif` notificaciones a nivel provincial. En cuanto a su distribución por sexo, el `r porc_max`% (n=`r sx_max`) corresponde al sexo femenino.
+Desde el inicio de la vigilancia de IS se han registrado hasta la `r SE_MAX` / `r ANIO_MAX` un total de `r cant_notif` notificaciones a nivel provincial. En cuanto a su distribución por sexo, el `r porc_max`% (n=`r sx_max`) corresponde al sexo femenino.
 
-```{r highcharter SE/SX}
-
-tabla_conteo_pivoteada <-tabla_conteo %>% 
-  pivot_wider(names_from = SEXO, values_from = n)
-
-titulo_dinamico <- glue("Frecuencia de notificaciones de IS según SE y sexo. Periodo SE 13/2023 a SE {SE_MAX}/ {anio_maximo}. Provincia del Neuquén. N =  {cant_notif}")
-
-highchart() %>%
-  hc_chart(type = "column") %>%
-  hc_title(
-    text = titulo_dinamico,
-    align = "left",
-    style = list(
-      fontFamily = "Manrope",
-      fontSize = "20px",
-      fontWeight = "bold")
-  ) %>%
-  hc_subtitle(
-    text = "Elaboración propia en base a datos extraídos de SNVS 2.0", 
-    align = "center", 
-    verticalAlign = "bottom", 
-    y = 10,
-    style = list(
-      fontFamily = "Manrope",
-      fontSize = "14px"
-    )
-  ) %>% 
-  hc_xAxis(categories = tabla_conteo_pivoteada$SEPI_SINTOMA, title = list(text = "SE")) %>%
-  hc_yAxis(
-    title = list(text = "Notificaciones"), 
-    gridLineWidth = 0
-  ) %>%  # Eliminar líneas de cuadrícula horizontales
-  hc_plotOptions(column = list(stacking = "normal")) %>%
-  hc_add_series(name = "Femenino", data = tabla_conteo_pivoteada$F, color = "#8FBC8F") %>%
-  hc_add_series(name = "Masculino", data = tabla_conteo_pivoteada$M, color = "#2F4F4F")
-
-
+```{r}
+library(highcharter)
+highchart_evolutivo
 ```
 
 Al momento de la actualización de este reporte, se notificaron `r cant_defunciones` intentos de suicidio con resultado mortal.
 
 ```{r tabla clasif manual}
-
-# tabla totales y % 
-
-titulo_dinamico2 <- glue("Notificaciones de IS según desenlace. Periodo SE 13/2023 a SE {SE_MAX}/ {anio_maximo}. Provincia del Neuquén. N =  {cant_notif}")
-
-
-# Crear la tabla con gt y formatearla
-classmanual_gt <- tabla_clasifmanual %>%
-  gt() %>%
-  # Formatear los números y porcentajes
-  fmt_number(
-    columns = vars(total),
-    decimals = 0
-  ) %>%
-  fmt_percent(
-    columns = vars(porcentaje),
-    decimals = 0
-  ) %>%
-  # Renombrar las columnas
-  cols_label(
-    CLASIFICACION_MANUAL = "Desenlace",
-    total = "Total general",
-    porcentaje = "%"
-  ) %>%
-  # Aplicar estilos de negrita a los encabezados
-  tab_style(
-    style = cell_text(weight = "bold"),
-    locations = cells_column_labels(everything())  # Aplica a todos los encabezados
-  ) %>%
-  # Agregar un encabezado a la tabla
-  tab_header(
-    title = titulo_dinamico2) %>% 
-  tab_style(
-    style = cell_text(
-      font = "Manrope",   
-      weight = "bold",     
-      align = "left"),
-    locations = cells_title(groups = "title")) %>% 
-  # Agregar la fuente de datos al pie de tabla
-  tab_source_note(
-    source_note = "Elaboración propia en base a datos extraídos de SNVS 2.0") %>%
-  tab_style(
-    style = cell_text(
-      font = "Manrope",
-      size = "12px",
-      align = "center"),
-    locations = cells_source_notes()) %>% 
-  # Alineación del título (alineado a la izquierda)
-  tab_style(
-    style = cell_text(weight = "bold", align = "left", size = "large"),
-    locations = cells_title()
-  )
 
 classmanual_gt
 
@@ -160,171 +82,16 @@ classmanual_gt
 
 Las edades comprendidas son entre los `r min_edad_defunc` y los `r max_edad_defunc` años. El `r porcentaje_maximo`% (n=`r n_max_def`) de las defunciones corresponden a sexo `r sx_max_def`.
 
-Más del 70% de las notificaciones de intentos de suicidio están concentradas entre los 15-34 años. Las tasas de notificación de intentos de suicidio provincial, de mujeres y de varones tienen un comportamiento similar, con ascensos en las edades más jovenes y descensos a partir de los 35 años. Como puede observarse en el gráfico a continuación, la tasa de notificaciones en `r sexo_maximo` es la más elevada, superando incluso la provincial (excepto en el grupo de edad de 35 a 44 años). El valor máximo de la tasa de notificación es para el grupo de edad `r gedad_maximo`, siendo de `r tasa_max` notificaciones cada 10000 `r sexo_maximo`.\
+Más del 70% de las notificaciones de intentos de suicidio están concentradas entre los 15-34 años. Las tasas de notificación de intentos de suicidio provincial, de mujeres y de varones tienen un comportamiento similar, con ascensos en las edades más jovenes y descensos a partir de los 35 años. Como puede observarse en el gráfico a continuación, la tasa de notificaciones en mujeres es la más elevada, superando incluso la provincial (excepto en el grupo de edad de 35 a 44 años). El valor máximo de la tasa de notificación es para el grupo de edad `r gedad_maximo`, siendo de `r tasa_max` notificaciones cada 10000 `r sexo_maximo`.\
 
 ```{r grafico tasa notificacion highcharter}
-Gedad_SX <- base %>% 
-  group_by(GRUPO_ETARIO,SEXO) %>% 
- count() %>%
-  ungroup()
 
-#cargo dataset poblacion
-poblacion <- read.csv("Poblacion.csv", sep = ";") #agrego la variable poblacion para calcular tasa
-
-titulo_dinamico3 <- glue("Notificaciones y tasa de notificación de intento de suicidio por grupo de edad y sexo. Periodo SE 13/2023 a SE {SE_MAX}/ {anio_maximo}. Provincia del Neuquén. N =  {cant_notif}")
-
-
-
-highchart() %>%
-  hc_chart(type = "column") %>%
-  
-  # Agregar un subtítulo justificado
-  hc_title(
-    text = titulo_dinamico3, 
-    align = "left",  
-    style = list(
-      fontFamily = "Manrope",
-      fontSize = "20px",
-      fontWeight = "bold")) %>%
-
-  # Configurar el eje X con categorías
-  hc_xAxis(
-    categories = tabla_grupoetario$GRUPO_ETARIO, 
-    title = list(text = "Grupos de edad")
-  ) %>%
-  
-  # Configurar múltiples ejes Y y quitar líneas de cuadrícula
-  hc_yAxis_multiples(
-    list(
-      title = list(text = "Notificaciones", style = list(fontSize = "14px")), 
-      opposite = FALSE,
-      gridLineWidth = 0  # Eliminar líneas de cuadrícula horizontales en el eje primario
-    ),
-    list(
-      title = list(text = "Tasas de notificación x 10000 hab", style = list(fontSize = "14px")), 
-      opposite = TRUE,
-      gridLineWidth = 0  # Eliminar líneas de cuadrícula horizontales en el eje secundario
-    )
-  ) %>%
-  
-  # Configurar opciones de las columnas
-  hc_plotOptions(column = list(stacking = "normal")) %>%
-  
-  # Serie para las notificaciones en el eje primario
-  hc_add_series(
-    name = "Notificaciones", 
-    data = tabla_grupoetario$n,  
-    color = "#8FBC8F",
-    yAxis = 0  
-  ) %>%
-  
-  # Serie para la tasa total en el eje secundario
-  hc_add_series(
-    name = "Tasa Total", 
-    data = tabla_grupoetario$tasa_notificacion,  
-    color = "black",
-    yAxis = 1,  
-    type = "scatter"  
-  ) %>%
-  
-  # Serie para la tasa de varones en el eje secundario
-  hc_add_series(
-    name = "Tasa Varones", 
-    data = tasas_varones$tasa_notificacion,  
-    color = "#feb24c",
-    yAxis = 1,  
-    type = "scatter") %>%
-  
-  # Serie para la tasa de mujeres en el eje secundario
-  hc_add_series(
-    name = "Tasa Mujeres", 
-    data = tasas_mujeres$tasa_notificacion,  
-    color = "#756bb1",
-    yAxis = 1,  
-    type = "scatter") %>% 
-  
-  hc_tooltip(
-    shared = TRUE,  
-    formatter = JS("function() {
-      if (this.series.name.includes('Tasa')) {
-        return '<b>' + this.series.name + '</b><br>' +
-               'Grupo de Edad: ' + this.x + '<br>' +
-               'Tasa: ' + this.y.toFixed(2) + ' x 10,000 hab';
-      } else {
-        return '<b>' + this.series.name + '</b><br>' +
-               'Grupo de Edad: ' + this.x + '<br>' +
-               'Notificaciones: ' + this.y;
-      }
-    }")) %>% 
-  hc_subtitle(
-    text = "Elaboración propia en base a datos extraídos de SNVS 2.0",
-    align = "center",
-    verticalAlign = "bottom", 
-    y = 10,
-    style = list(
-     fontFamily = "Manrope",
-      fontSize = "14px"))
-  
+grafico_tasas
 ```
 
 La sobreingesta medicamentosa es el mecanismo de acción que acumula el mayor porcentaje en los intentos de suicidio notificados al momento, representando el 45% del total de las notificaciones. A continuación, se muestran las frecuencias absolutas y relativas de las mismas, incluyendo la variable sexo.
 
 ```{r tabla mecanismos}
-
-titulo_dinamico4 <- glue("Notificaciones de IS según mecanismo utilizado. Periodo SE 13/2023 a SE {SE_MAX}/ {anio_maximo}. Provincia del Neuquén. N =  {cant_notif}")
-
-#orden de las columnas
-tabla_mecanismo <- tabla_mecanismo %>%
-  select(
-    MECANISMO,
-    total_F,
-    porcentaje_F,
-    total_M,
-    porcentaje_M,
-    total_general,
-    porcentaje_total_general)
-
-
-# Crear la tabla con gt y formatearla
-mecanismo_gt <- tabla_mecanismo %>%
-  gt() %>%
-  fmt_number(
-    columns = vars(total_general, total_F, total_M),
-    decimals = 0
-  ) %>%
-  fmt_percent(
-    columns = vars(porcentaje_total_general, porcentaje_F, porcentaje_M),
-    decimals = 0
-  ) %>%
-  # Renombrar las columnas para reflejar el formato solicitado
-  cols_label(
-    MECANISMO = "Mecanismo",
-    total_general = "Total general",
-    porcentaje_total_general = "%",
-    total_F = "Mujeres",
-    porcentaje_F = "% mujeres",
-    total_M = "Varones",
-    porcentaje_M = "% varones"
-  ) %>%
-  # Agregar un encabezado a la tabla
-  tab_header(
-    title = titulo_dinamico4) %>% 
-  tab_style(
-    style = cell_text(
-      font = "Manrope",   
-      weight = "bold",     
-      align = "left"),
-    locations = cells_title(groups = "title")) %>% 
-  tab_source_note(
-    source_note = "Elaboración propia en base a datos extraídos de SNVS 2.0") %>%
-  tab_style(
-    style = cell_text(
-      font = "Manrope",
-      size = "12px",
-      align = "center"),
-    locations = cells_source_notes())
-
-
 mecanismo_gt
 ```
 
@@ -332,170 +99,26 @@ En consonancia, el lugar de ocurrencia que prevalece es la `r ocurrencia_maximo`
 
 ```{r tabla ocurrencia con GT}
 
-titulo_dinamico5 <- glue("Notificaciones de IS según lugar de ocurrencia. Periodo SE 13/2023 a SE {SE_MAX}/ {anio_maximo}. Provincia del Neuquén. N =  {cant_notif}")
-
-ocurrencia_gt <- TABLA_OCURRENCIA %>%
-  gt() %>%
-  fmt_number(
-    columns = vars(LUGAR_OCURRENCIA),
-    decimals = 0
-  ) %>%
-  fmt_percent(
-    columns = vars(porc),
-    decimals = 1
-  ) %>%
-  
-# Renombrar las columnas para reflejar el formato solicitado
-  cols_label(
-    LUGAR_OCURRENCIA = "Lugar de ocurrencia",
-    n = "Total general",
-    porc = "%") %>%
-  # Agregar un encabezado a la tabla
-  tab_header(
-    title = titulo_dinamico5)%>% 
-  tab_style(
-    style = cell_text(
-      font = "Manrope",   
-      weight = "bold",     
-      align = "left"),
-    locations = cells_title(groups = "title")) %>% 
-  # Agregar la fuente de datos al pie de tabla
-  tab_source_note(
-    source_note = "Elaboración propia en base a datos extraídos de SNVS 2.0") %>%
-  tab_style(
-    style = cell_text(
-      font = "Manrope",
-      size = "12px",
-      align = "center"),
-    locations = cells_source_notes())
 ocurrencia_gt
 ```
 
 En cuanto al tipo de cuidado requerido, el `r por_internacion_maximo`% (`r n_internacion` personas) requirieron internación. A continuación se presentan los porcentajes según el tratamiento recibido.
 
 ```{r grafico circular tratamiento}
-
-# Crear el gráfico
-
-titulo_dinamico6 <- glue("Notificaciones de IS según requerimiento de cuidado. Periodo SE 13/2023 a SE {SE_MAX}/ {anio_maximo}. Provincia del Neuquén. N =  {n_internacion}")
-
-highchart() %>%
-  hc_chart(type = "pie") %>%
-  hc_title(text = titulo_dinamico6,
-           align = "left",
-           style = list(
-      fontFamily = "Manrope",
-      fontSize = "20px",
-      fontWeight = "bold")) %>%
-  hc_subtitle(
-    text = "Elaboración propia en base a datos de SNVS 2.0", 
-    align = "center", 
-    verticalAlign = "bottom", 
-    y = 10
-  ) %>% 
-  hc_add_series(
-    name = "Notificaciones", 
-    data = data_tratamiento,
-    colorByPoint = TRUE
-  ) %>%
-  hc_plotOptions(
-    pie = list(
-       innerSize = '50%',
-      dataLabels = list (enabled = TRUE,
-        format = '{point.name}: {point.y}%')))
-
-
-
-
+grafico_cuidados
 ```
 
 La vigilancia y notificación del intento de suicidio incluye una sección referida a las comorbilidades. Sin embargo, no se trata de un apartado obligatorio en la notificación. El `r porc_max_sdcomorb`% (n=`r n_max_sdcomorb`) de las notificaciones no cuenta con información al respecto. Los antecedentes de consumo problemático de sustancias psicoactivas (cocaína, marihuana, drogas de diseño y alcohol) representan el `r porcentaje_consumo`% (n=`r n_consumo`) de las comorbilidades notificadas en los intentos de suicidio. El alcohol y la cocaína son las sustancias psicoactivas que prevalecen. Por otro lado, 38 personas se encontraban bajo el efecto de alguna sustancia psicoactiva al momento del intento de suicidio.
 
 ```{r grafico comorbilidades}
-titulo_dinamico7 <- glue("Notificaciones de IS según comorbilidades. Periodo SE 13/2023 a SE {SE_MAX}/ {anio_maximo}. Provincia del Neuquén. N =  {n_internacion}")
-
-
-highchart() %>%
-  hc_chart(type = "bar") %>%
-  hc_title(
-    text = titulo_dinamico7,
-    align = "left",
-    style = list(
-      fontFamily = "Manrope",
-      fontSize = "20px",
-      fontWeight = "bold"
-    )
-  ) %>%
-  hc_subtitle(
-    text = "Elaboración propia en base a datos extraídos de SNVS 2.0",
-    align = "center",
-    verticalAlign = "bottom",
-    y = 10,
-    style = list(
-      fontFamily = "Manrope",
-      fontSize = "14px"
-    )
-  ) %>%
-  hc_xAxis(
-    categories = comorbilidades$COMORBILIDAD,
-    title = list(text = "Comorbilidades"),
-    labels = list(
-      style = list(fontSize = "10px"))
-  ) %>%
-  hc_yAxis(
-    title = list(text = "Notificaciones"),
-    gridLineWidth = 0
-  ) %>%
-  hc_series(
-    list(
-      data = comorbilidades$n,
-      color = "#8FBC8F",
-      showInLegend = FALSE)) %>% 
-  hc_tooltip(
-    pointFormat = "Notificaciones: <b>{point.y}</b>")
-
-
-
+grafico_comorbilidades
 ```
 
 Por último, la siguiente tabla muestra las notificaciones en el sistema de vigilancia nacional según la región.
 
 ```{r tabla notificaciones por regiones}
 
-titulo_dinamico8 <- glue("Notificaciones de IS según región notificadora. Periodo SE 13/2023 a SE {SE_MAX}/ {anio_maximo}. Provincia del Neuquén. N =  {cant_notif}")
-
-regiones_gt <- tabla_regiones %>%
-  gt() %>%
-  fmt_number(
-    columns = vars(REGION),
-    decimals = 0
-  ) %>%
-  fmt_percent(
-    columns = vars(porc),
-    decimals = 0) %>%
-  
-  cols_label(
-    REGION = "Región",
-    N = "Total general",
-    porc = "%") %>%
-  tab_header(
-    title = titulo_dinamico8)%>% 
-  tab_style(
-    style = cell_text(
-      font = "Manrope",   
-      weight = "bold",     
-      align = "left"),
-    locations = cells_title(groups = "title")) %>% 
-    tab_source_note(
-    source_note = "Elaboración propia en base a datos extraídos de SNVS 2.0") %>%
-  tab_style(
-    style = cell_text(
-      font = "Manrope",
-      size = "12px",
-      align = "center"),
-    locations = cells_source_notes())
 regiones_gt
-
 ```
 
 # Comentarios finales
@@ -504,19 +127,19 @@ Tanto la OMS como la OPS caracterizan como prevenibles a los suicidios y a los i
 
 # Bibliografía
 
--   Ley Nacional 26657 Derecho a la Protección de la Salud Mental (2010). (Disponible en [hps://servicios.infoleg.gob.ar/infolegInternet/anexos/175000ɮ179999/175977/norm a.htm](hps://servicios.infoleg.gob.ar/infolegInternet/anexos/175000ɮ179999/175977/norm a.htm))
+-   Ley Nacional 26657 Derecho a la Protección de la Salud Mental (2010). (Disponible en [hps://servicios.infoleg.gob.ar/infolegInternet/anexos/175000ɮ179999/175977/norm a.htm](hps://servicios.infoleg.gob.ar/infolegInternet/anexos/175000ɮ179999/175977/norm%20a.htm))
 
 -   Ley Nacional 27130 - Prevención del Suicidio (2015). (Disponible en <https://www.argentina.gob.ar/normativa/nacional/ley-27130-245618/texto>)
 
--   Ministerio de Salud de la Nación (2022). Manual de normas y procedimientos de vigilancia y control de eventos de notificación obligatoria. (Disponible en [hps://salud.neuquen.gob.ar/wp-content/uploads/2024/09/Actualizacion-agosto-2 022-Manual-de-normas-y-procedimientos-de-vigilancia-y-control-de-ENO.pdf](hps://salud.neuquen.gob.ar/wp-content/uploads/2024/09/Actualizacion-agosto-2 022-Manual-de-normas-y-procedimientos-de-vigilancia-y-control-de-ENO.pdf))
+-   Ministerio de Salud de la Nación (2022). Manual de normas y procedimientos de vigilancia y control de eventos de notificación obligatoria. (Disponible en [hps://salud.neuquen.gob.ar/wp-content/uploads/2024/09/Actualizacion-agosto-2 022-Manual-de-normas-y-procedimientos-de-vigilancia-y-control-de-ENO.pdf](hps://salud.neuquen.gob.ar/wp-content/uploads/2024/09/Actualizacion-agosto-2%20022-Manual-de-normas-y-procedimientos-de-vigilancia-y-control-de-ENO.pdf))
 
 -   Ministerio de Salud de la Nación (2023). Instructivo para la notificación de Intentos de Suicidio al Sistema Nacional de Vigilancia de la Salud SNVS2.0.
 
 -   Ministerio de Salud de la Nación (2023). Dirección de estadísticas e información en salud. Estadísticas Vitales. Información Básica Argentina - Año 2022. (Disponible en <https://www.argentina.gob.ar/salud/deis>)
 
--   Ministerio de Salud de la Provincia del Neuquén (2024). Vigilancia- Intento de suicidio. (Disponible en [hps://salud.neuquen.gob.ar/wp-content/uploads/2024/09/vigilancia-intento-de-s uicidio-Final.pdf](hps://salud.neuquen.gob.ar/wp-content/uploads/2024/09/vigilancia-intento-de-s uicidio-Final.pdf))
+-   Ministerio de Salud de la Provincia del Neuquén (2024). Vigilancia- Intento de suicidio. (Disponible en [hps://salud.neuquen.gob.ar/wp-content/uploads/2024/09/vigilancia-intento-de-s uicidio-Final.pdf](hps://salud.neuquen.gob.ar/wp-content/uploads/2024/09/vigilancia-intento-de-s%20uicidio-Final.pdf))
 
--   Ministerio de Salud de la Provincia del Neuquén (2024). Boletín epidemiológico mensual de septiembre. Evento priorizado: “Intento de suicidio”. (Disponible en [hps://salud.neuquen.gob.ar/wp-content/uploads/2024/08/MSaludNQNɮBEM.-ABRI L-2024.pdf](hps://salud.neuquen.gob.ar/wp-content/uploads/2024/08/MSaludNQNɮBEM.-ABRI L-2024.pdf))
+-   Ministerio de Salud de la Provincia del Neuquén (2024). Boletín epidemiológico mensual de septiembre. Evento priorizado: “Intento de suicidio”. (Disponible en [hps://salud.neuquen.gob.ar/wp-content/uploads/2024/08/MSaludNQNɮBEM.-ABRI L-2024.pdf](hps://salud.neuquen.gob.ar/wp-content/uploads/2024/08/MSaludNQNɮBEM.-ABRI%20L-2024.pdf))
 
 -   OMS (2022) Informe mundial sobre salud mental: Transformar la salud mental para todos. (Disponible en [hps://www.who.int/es/publications/i/item/9789240050860](hps://www.who.int/es/publications/i/item/9789240050860))\
     \
@@ -527,6 +150,5 @@ Tanto la OMS como la OPS caracterizan como prevenibles a los suicidios y a los i
     \
 
     \
-
 
     \
